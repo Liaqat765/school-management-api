@@ -18,9 +18,9 @@ A simple backend system to manage students, courses, enrollments, and grades for
 
 
 1. Clone the repo:
-   ```bash
-   git clone https://github.com/your-username/school-management-api.git
-   cd school-management-api
+   
+   git clone https://github.com/Liaqat765/school-management-api.git
+   
    
 2. Build the project:
    mvn clean install
