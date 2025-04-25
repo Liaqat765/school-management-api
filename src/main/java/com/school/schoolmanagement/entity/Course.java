@@ -43,4 +43,6 @@ public class Course extends AbstractEntity {
         this.code = code;
         this.description = description;
     }
+
+
 }

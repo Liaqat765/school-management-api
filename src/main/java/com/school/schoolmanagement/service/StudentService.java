@@ -38,53 +38,82 @@ public class StudentService {
 
     //// Method to create a new student from the provided DTO and save to the database
     public StudentDTO createStudent(StudentDTO studentDTO) {
-        // Create logger text with input information
-        StringBuilder loggerText = new StringBuilder("StudentService=>createStudent::input::StudentDTO:" + studentDTO);
-        logger.info(loggerText.toString());
-        loggingService.info(logger, loggerText + ",beforeCreation", Thread.currentThread().getStackTrace()[1].getLineNumber());
 
+        // Log the input student details
+        logger.info("StudentService=>createStudent::input::StudentDTO:{}", studentDTO);
+
+        // Convert the StudentDTO to a Student entity
         Student student = modelMapper.map(studentDTO, Student.class);
+
+        // Save the student entity to the database
         Student savedStudent = studentRepository.save(student);
 
         // Log the saved student details
-                loggerText = new StringBuilder("StudentService=>createStudent::output::SavedStudent:" + savedStudent);
-        loggingService.info(logger, loggerText + ",afterCreation", Thread.currentThread().getStackTrace()[1].getLineNumber());
+        logger.info("StudentService=>createStudent::output::SavedStudent:{}", savedStudent);
 
-
+        // Convert the saved student entity back to DTO and return it
         return modelMapper.map(savedStudent, StudentDTO.class);
     }
 
     // Method to get a student by their ID, throwing an exception if not found
     public StudentDTO getStudentById(Long id) {
+        logger.info("StudentService=>getStudentById::Searching for student with ID: {}", id);
+
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("StudentService=>getStudentById::Student not found with ID: {}", id);
+                   return new ResourceNotFoundException("Student not found with id: " + id);
+
+                });
         return modelMapper.map(student, StudentDTO.class);
     }
 
     // Method to get all students with pagination
     public Page<StudentDTO> getAllStudents(Pageable pageable) {
-        return studentRepository.findAll(pageable)
+        logger.info("StudentService=>getAllStudents::Fetching all students with pagination");
+//        return studentRepository.findAll(pageable)
+//                .map(student -> modelMapper.map(student, StudentDTO.class));
+
+        Page<StudentDTO> result = studentRepository.findAll(pageable)
                 .map(student -> modelMapper.map(student, StudentDTO.class));
+
+        logger.info("StudentService=>getAllStudents::Total students fetched: {}", result.getTotalElements());
+
+        return result;
     }
 
     // Method to update an existing students details
     public StudentDTO updateStudent(Long id, StudentDTO studentDTO) {
+        logger.info("StudentService=>updateStudent::Attempting to update student with ID: {}", id);
+
         Student existingStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("StudentService=>updateStudent::Student not found with ID: {}", id);
+                    return  new ResourceNotFoundException("Student not found with id: " + id);
+                });
+        logger.info("StudentService=>updateStudent::Before Update: {}", existingStudent);
+
         existingStudent.setFirstName(studentDTO.getFirstName());
         existingStudent.setLastName(studentDTO.getLastName());
         existingStudent.setEmail(studentDTO.getEmail());
         existingStudent.setPhone(studentDTO.getPhone());
 
         Student updatedStudent = studentRepository.save(existingStudent);
+        logger.info("StudentService=>updateStudent::After Update: {}", updatedStudent);
+
         return modelMapper.map(updatedStudent, StudentDTO.class);
     }
 
     // Method to delete a student by ID
     public void deleteStudent(Long id) {
+
+        logger.info("StudentService=>deleteStudent::Attempting to delete student with ID: {}", id);
+
         if (!studentRepository.existsById(id)) {
+            logger.error("StudentService=>deleteStudent::Student not found with ID: {}", id);
             throw new ResourceNotFoundException("Student not found with id: " + id);
         }
         studentRepository.deleteById(id);
+        logger.info("StudentService=>deleteStudent::Deleted student with ID: {}", id);
     }
 }

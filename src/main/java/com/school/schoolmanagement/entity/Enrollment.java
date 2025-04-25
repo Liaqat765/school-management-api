@@ -35,4 +35,6 @@ public class Enrollment extends AbstractEntity {
         this.student = student;
         this.course = course;
     }
+
+
 }

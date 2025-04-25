@@ -61,10 +61,13 @@ public class StudentController {
     @GetMapping(value = AppConstantUtil.URL.STUDENT_GET_BY_ID)
     public ResponseEntity<StudentDTO> getStudent(@PathVariable Long id) {
 
+        logger.info("StudentController=>getStudent::Fetching student with ID: {}", id);
+
 
         // Call the service to get the student details
         StudentDTO student = studentService.getStudentById(id);
 
+        logger.info("StudentController=>getStudent::Found Student: {}", student);
 
 
         return ResponseEntity.ok(student);
@@ -73,7 +76,12 @@ public class StudentController {
     // Endpoint to get all students with pagination
     @GetMapping(value = AppConstantUtil.URL.STUDENT_GET_ALL)
     public ResponseEntity<Page<StudentDTO>> getAllStudents(Pageable pageable) {
+        logger.info("StudentController=>getAllStudents::Fetching students with pagination");
+
         Page<StudentDTO> students = studentService.getAllStudents(pageable);
+
+        logger.info("StudentController=>getAllStudents::Total students found: {}", students.getTotalElements());
+
         return ResponseEntity.ok(students);
     }
 
@@ -83,9 +91,11 @@ public class StudentController {
             @PathVariable Long id, @Valid @RequestBody StudentDTO studentDTO) {
 
 
+        logger.info("StudentController=>updateStudent::before=>Updating student with ID: {}, New Data: {}", id, studentDTO);
 
-        // Call the service to update the student
         StudentDTO updatedStudent = studentService.updateStudent(id, studentDTO);
+
+        logger.info("StudentController=>updateStudent::After=>Updated Student: {}", updatedStudent);
 
 
         Map<String, String> response = new HashMap<>();
@@ -98,8 +108,12 @@ public class StudentController {
     @DeleteMapping(value = AppConstantUtil.URL.STUDENT_DELETE)
     public ResponseEntity<Map<String, String>> deleteStudent(@PathVariable Long id) {
 
-        // Call the service to delete the student
+        logger.info("StudentController=>deleteStudent::Before => Deleting student with ID: {}", id);
+
         studentService.deleteStudent(id);
+
+        logger.info("StudentController=>deleteStudent::Student deleted successfully");
+
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Student deleted successfully By Id");
